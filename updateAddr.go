@@ -46,11 +46,11 @@ func UpdateAddr (addr string, port int, serviceID, password string, dbConn *sql.
 
 	instructionY := `SELECT record_id
 	FROM service_addr
-	WHERE service_id = ? AND password = ?`
+	WHERE service_id = ? AND pass = ?`
 
 	instructionZ := `UPDATE service_addr
 	SET addr = ?, port = ?
-	WHERE service_id = ? AND password = ?`
+	WHERE service_id = ? AND pass = ?`
 	// ..1.. }
 
 	// Validating existence of service. ..1.. {
