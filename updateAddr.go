@@ -8,10 +8,7 @@ import (
 )
 
 func UpdateAddr (addr string, port int, serviceID, password string, dbConn *sql.Conn) (error) {
-	// Arg 0 (address) validation. ..1.. {
-	if ! addrPattern.Match (addr) {
-		return err.New ("Invalid arg 0 (address) provided.", nil, nil)
-	}
+	// Arg 0 (addr) validation. ..1.. {
 	if net.ParseIp (addr) == nil {
 		return err.New ("Invalid arg 0 (address) provided.", nil, nil)
 	}	
@@ -84,8 +81,6 @@ func UpdateAddr (addr string, port int, serviceID, password string, dbConn *sql.
 }
 
 var (
-	addrPattern *regexp.Regexp
-	recordIDPattern *regexp.Regexp
 	serviceIDPattern *regexp.Regexp
 	passwordPattern *regexp.Regexp
 )
@@ -95,29 +90,15 @@ func init () {
 		return
 	}
 
-	var errX error
-	addrPattern, errX := regexp.Compile ("^([a-zA-Z0-9]{0,4}:){7,7}[a-zA-Z0-9]{0,4}$")
-	if errX != nil {
-		initReport = err.New ("Addr pattern regular expression compilation failed.", nil, nil, errX)
-		return
-	}
-
-	var errY error
-	recordIDPattern, errY := regexp.Compile ("^20\d\d-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-([0-1][0-9]|2[0-3])-([0-5][0-9])-([0-5][0-9])-[a-z0-9]{4,4}$")
-	if errY != nil {
-		initReport = err.New ("Record ID pattern regular expression compilation failed.", nil, nil, errY)
-		return
-	}
-
 	var errZ error
-	serviceIDPattern, errZ := regexp.Compile ("[a-z0-9]{1,2}$")
+	serviceIDPattern, errZ := regexp.Compile ("^[a-z0-9]{1,2}$")
 	if errZ != nil {
 		initReport = err.New ("Service ID pattern regular expression compilation failed.", nil, nil, errZ)
 		return
 	}
 
 	var errA error
-	passwordPattern, errA := regexp.Compile ("[a-z0-9]{32,32}$")
+	passwordPattern, errA := regexp.Compile ("^[a-z0-9]{32,32}$")
 	if errA != nil {
 		initReport = err.New ("Password pattern regular expression compilation failed.", nil, nil, errA)
 		return
