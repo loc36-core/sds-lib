@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"context"
 	"database/sql"
 	"gopkg.in/qamarian-dtp/err.v0" //v0.4.0
 	"net"
@@ -9,9 +10,9 @@ import (
 
 func UpdateAddr (addr string, port int, serviceID, password string, dbConn *sql.Conn) (error) {
 	// Arg 0 (addr) validation. ..1.. {
-	if net.ParseIp (addr) == nil {
+	if net.ParseIP (addr) == nil {
 		return err.New ("Invalid arg 0 (address) provided.", nil, nil)
-	}	
+	}
 	// ..1.. }
 
 	// Arg 1 (port) validation. ..1.. {
@@ -21,15 +22,15 @@ func UpdateAddr (addr string, port int, serviceID, password string, dbConn *sql.
 	// ..1.. }
 
 	// Arg 2 (serviceID) validation. ..1.. {
-	if ! serviceIDPattern.Match (serviceID) {
+	if ! serviceIDPattern.Match ([]byte (serviceID)) {
 		return err.New ("Invalid arg 2 (service ID) provided.", nil, nil)
 	}
 	// ..1.. }
 
 	// Arg 3 (password) validation. ..1.. {
-	if ! passwordPattern.Match (password) {
+	if ! passwordPattern.Match ([]byte (password)) {
 		return err.New ("Invalid arg 3 (password) provided.", nil, nil)
-	}	
+	}
 	// ..1.. }
 
 	// Arg 4 (dbConn) validation. ..1.. {
@@ -39,39 +40,43 @@ func UpdateAddr (addr string, port int, serviceID, password string, dbConn *sql.
 	// ..1.. }
 
 	// SQL instructions definitions. ..1.. {
-	instructionX := "SELECT record_id
+	instructionX := `SELECT record_id
 	FROM service_addr
-	WHERE service_id = ?"
-	instructionY := "SELECT record_id
+	WHERE service_id = ?`
+
+	instructionY := `SELECT record_id
 	FROM service_addr
-	WHERE service_id = ? AND password = ?"
-	instructionZ := "UPDATE service_addr
+	WHERE service_id = ? AND password = ?`
+
+	instructionZ := `UPDATE service_addr
 	SET addr = ?, port = ?
-	WHERE service_id = ? AND password = ?"
+	WHERE service_id = ? AND password = ?`
 	// ..1.. }
 
 	// Validating existence of service. ..1.. {
-	errY := dbConn.QueryRowContext (context.Backgroud (), instructionX, serviceID).Scan (&_)
+	var uselessX string
+	errY := dbConn.QueryRowContext (context.Background (), instructionX, serviceID).Scan (&uselessX)
 	if errY != nil && errY == sql.ErrNoRows {
 		return err.New ("Service does not exist.", nil, nil)
 	}
 	if errY != nil {
-		return err.New ("Unable to verify existence of service.", nil, nil, errY) 
+		return err.New ("Unable to verify existence of service.", nil, nil, errY)
 	}
 	// ..1.. }
 
 	// Validating correctness of service password. ..1.. {
-	errZ := dbConn.QueryRowContext (context.Backgroud (), instructionY, serviceID, password).Scan (&_)
+	var uselessY string
+	errZ := dbConn.QueryRowContext (context.Background (), instructionY, serviceID, password).Scan (&uselessY)
 	if errZ != nil && errZ == sql.ErrNoRows {
 		return err.New ("Invalid password.", nil, nil)
 	}
 	if errZ != nil {
-		return err.New ("Unable to verify validity of password.", nil, nil, errZ) 
+		return err.New ("Unable to verify validity of password.", nil, nil, errZ)
 	}
 	// ..1.. }
 
 	// Updating network address. ..1.. {
-	_, errA := dbConn.ExecContext (context.Backgroud (), instructionZ, addr, port, serviceID, password)
+	_, errA := dbConn.ExecContext (context.Background (), instructionZ, addr, port, serviceID, password)
 	if errA != nil {
 		return err.New ("Unable to update service address.", nil, nil, errA)
 	}
@@ -91,14 +96,14 @@ func init () {
 	}
 
 	var errZ error
-	serviceIDPattern, errZ := regexp.Compile ("^[a-z0-9]{1,2}$")
+	serviceIDPattern, errZ = regexp.Compile ("^[a-z0-9]{1,2}$")
 	if errZ != nil {
 		initReport = err.New ("Service ID pattern regular expression compilation failed.", nil, nil, errZ)
 		return
 	}
 
 	var errA error
-	passwordPattern, errA := regexp.Compile ("^[a-z0-9]{32,32}$")
+	passwordPattern, errA = regexp.Compile ("^[a-z0-9]{32,32}$")
 	if errA != nil {
 		initReport = err.New ("Password pattern regular expression compilation failed.", nil, nil, errA)
 		return
