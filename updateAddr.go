@@ -3,7 +3,7 @@ package lib
 import (
 	"context"
 	"database/sql"
-	"gopkg.in/qamarian-dtp/err.v0" //v0.4.0
+	"gopkg.in/qamarian-dtp/err.v0" // v0.4.0
 	"net"
 	"regexp"
 )
