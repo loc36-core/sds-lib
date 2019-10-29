@@ -8,7 +8,7 @@ import (
 	"regexp"
 )
 
-func UpdateAddr (addr string, port int, serviceID, password string, dbConn *sql.Conn) (error) {
+func UpdateAddr (addr string, port int, serviceID, password string, dbConn *sql.Conn) (error){
 	// Arg 0 (addr) validation. ..1.. {
 	if net.ParseIP (addr) == nil {
 		return err.New ("Invalid arg 0 (address) provided.", nil, nil)
@@ -55,7 +55,8 @@ func UpdateAddr (addr string, port int, serviceID, password string, dbConn *sql.
 
 	// Validating existence of service. ..1.. {
 	var uselessX string
-	errY := dbConn.QueryRowContext (context.Background (), instructionX, serviceID).Scan (&uselessX)
+	errY := dbConn.QueryRowContext (context.Background (), instructionX,
+		serviceID).Scan (&uselessX)
 	if errY != nil && errY == sql.ErrNoRows {
 		return err.New ("Service does not exist.", nil, nil)
 	}
@@ -66,7 +67,8 @@ func UpdateAddr (addr string, port int, serviceID, password string, dbConn *sql.
 
 	// Validating correctness of service password. ..1.. {
 	var uselessY string
-	errZ := dbConn.QueryRowContext (context.Background (), instructionY, serviceID, password).Scan (&uselessY)
+	errZ := dbConn.QueryRowContext (context.Background (), instructionY, serviceID,
+		password).Scan (&uselessY)
 	if errZ != nil && errZ == sql.ErrNoRows {
 		return err.New ("Invalid password.", nil, nil)
 	}
@@ -76,7 +78,8 @@ func UpdateAddr (addr string, port int, serviceID, password string, dbConn *sql.
 	// ..1.. }
 
 	// Updating network address. ..1.. {
-	_, errA := dbConn.ExecContext (context.Background (), instructionZ, addr, port, serviceID, password)
+	_, errA := dbConn.ExecContext (context.Background (), instructionZ, addr, port,
+		serviceID, password)
 	if errA != nil {
 		return err.New ("Unable to update service address.", nil, nil, errA)
 	}
@@ -98,14 +101,16 @@ func init () {
 	var errZ error
 	serviceIDPattern, errZ = regexp.Compile ("^[a-z0-9]{1,2}$")
 	if errZ != nil {
-		initReport = err.New ("Service ID pattern regular expression compilation failed.", nil, nil, errZ)
+		initReport = err.New ("Service ID pattern regular expression " +
+			"compilation failed.", nil, nil, errZ)
 		return
 	}
 
 	var errA error
 	passwordPattern, errA = regexp.Compile ("^[a-z0-9]{32,32}$")
 	if errA != nil {
-		initReport = err.New ("Password pattern regular expression compilation failed.", nil, nil, errA)
+		initReport = err.New ("Password pattern regular expression compilation " +
+			"failed.", nil, nil, errA)
 		return
 	}
 }
