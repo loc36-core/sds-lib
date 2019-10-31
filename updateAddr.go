@@ -8,6 +8,7 @@ import (
 	"regexp"
 )
 
+// UpdateAddr () helps services update their address in the SDS.
 func UpdateAddr (addr string, port int, serviceID, password string, dbConn *sql.Conn) (error){
 	// Arg 0 (addr) validation. ..1.. {
 	if net.ParseIP (addr) == nil {
