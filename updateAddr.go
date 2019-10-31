@@ -71,7 +71,7 @@ func UpdateAddr (addr string, port int, serviceID, password string, dbConn *sql.
 	errZ := dbConn.QueryRowContext (context.Background (), instructionY, serviceID,
 		password).Scan (&uselessY)
 	if errZ != nil && errZ == sql.ErrNoRows {
-		return err.New ("Invalid password.", nil, nil)
+		return err.New ("Invalid record update password.", nil, nil)
 	}
 	if errZ != nil {
 		return err.New ("Unable to verify validity of password.", nil, nil, errZ)
